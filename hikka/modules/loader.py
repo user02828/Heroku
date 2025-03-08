@@ -652,16 +652,13 @@ class LoaderMod(loader.Module):
                     )
 
                 pip = await asyncio.create_subprocess_exec(
-                    sys.executable,
-                    "-m",
                     "pip",
                     "install",
                     "--upgrade",
                     "-q",
                     "--disable-pip-version-check",
                     "--no-warn-script-location",
-                    *["--user"] if loader.USER_INSTALL else [],
-                    *requirements,
+                   *requirements,
                 )
 
                 rc = await pip.wait()
