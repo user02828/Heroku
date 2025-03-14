@@ -121,7 +121,7 @@ while True:
             logger.info("Переключение на Flask из-за смерти Хикки")
     if current_mode == "flask":
         logger.info("Запуск Flask в качестве заглушки")
-        app.run(host="0.0.0.0", port=$PORT)
+        app.run(host="127.0.0.1", port=$PORT)
 
 @app.route("/healthz")
 def healthz():
