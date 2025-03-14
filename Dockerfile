@@ -35,7 +35,7 @@ ENV GIT_PYTHON_REFRESH=quiet
 ENV PIP_NO_CACHE_DIR=1
 ENV PATH="/Hikka/venv/bin:$PATH"
 ENV PYTHONPATH="/Hikka/venv/lib/python3.10/site-packages"
-ENV PORT=8080  # Render define a porta automaticamente, mas isso ajuda a evitar problemas
+ENV PORT=8080
 
 # Copia o app do estágio de build
 COPY --from=builder /Hikka /Hikka
