@@ -25,16 +25,17 @@ FROM python:3.10-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl libcairo2 git ffmpeg libmagic1 libavcodec-dev libavutil-dev libavformat-dev \
     libswscale-dev libavdevice-dev neofetch wkhtmltopdf gcc python3-dev net-tools && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && apt-get install -y --no-install-recommends nodejs && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/*
 
-# Variáveis de ambiente para Render
-ENV DOCKER=true \
-    GIT_PYTHON_REFRESH=quiet \
-    PIP_NO_CACHE_DIR=1 \
-    PATH="/Hikka/venv/bin:$PATH" \
-    PYTHONPATH="/Hikka/venv/lib/python3.10/site-packages" \
-    PORT=8080  # Render define a porta automaticamente, mas isso ajuda a evitar problemas
+# Definição correta de variáveis de ambiente
+ENV DOCKER=true
+ENV GIT_PYTHON_REFRESH=quiet
+ENV PIP_NO_CACHE_DIR=1
+ENV PATH="/Hikka/venv/bin:$PATH"
+ENV PYTHONPATH="/Hikka/venv/lib/python3.10/site-packages"
+ENV PORT=8080  # Render define a porta automaticamente, mas isso ajuda a evitar problemas
 
 # Copia o app do estágio de build
 COPY --from=builder /Hikka /Hikka
