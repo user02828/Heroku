@@ -60,7 +60,7 @@ def free_port(port):
 
 def start_hikka():
     global hikka_process, current_mode
-    free_port($PORT)  # Libera a porta antes de iniciar
+    free_port($PORT)
     try:
         hikka_process = subprocess.Popen(["python", "-m", "hikka", "--port", str($PORT)])
         logger.info(f"Hikka iniciada com PID: {hikka_process.pid}")
