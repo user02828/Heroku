@@ -134,5 +134,5 @@ def healthz():
 
 # Executa o Flask como fallback
 logger.info("Executando Flask como fallback")
-app.run(host="127.0.0.1", port=int(PORT))
+app.run(host="0.0.0.0", port=int(PORT))
 EOF
