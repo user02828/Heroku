@@ -1,19 +1,15 @@
 #!/bin/bash
 set -e
 
-# Lista de utilitários proibidos para segurança
 FORBIDDEN_UTILS="socat nc netcat php lua telnet ncat cryptcat rlwrap msfconsole hydra medusa john hashcat sqlmap metasploit empire cobaltstrike ettercap bettercap responder mitmproxy evil-winrm chisel ligolo revshells powershell certutil bitsadmin smbclient impacket-scripts smbmap crackmapexec enum4linux ldapsearch onesixtyone snmpwalk zphisher socialfish blackeye weeman aircrack-ng reaver pixiewps wifite kismet horst wash bully wpscan commix xerosploit slowloris hping iodine iodine-client iodine-server"
 
-# Configuração de porta e timeout para reinício
 PORT=${PORT:-8080}
 HIKKA_RESTART_TIMEOUT=60
 
-# Instala dependências básicas (net-tools para netstat)
 apt-get update
 apt-get install -y net-tools
 pip install --no-cache-dir flask requests
 
-# Obtém o hostname externo do Render, se não definido, aborta
 if [ -z "$RENDER_EXTERNAL_HOSTNAME" ]; then
     RENDER_EXTERNAL_HOSTNAME=$(curl -s "http://169.254.169.254/latest/meta-data/public-hostname" || echo "")
     if [ -z "$RENDER_EXTERNAL_HOSTNAME" ]; then
@@ -31,7 +27,6 @@ import logging
 import shutil
 import os
 
-# Configuração de logs
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -45,7 +40,6 @@ current_mode = "hikka"
 hikka_last_seen = time.time()
 
 def free_port(port):
-    """Libera a porta, se estiver ocupada"""
     try:
         output = subprocess.check_output(f"netstat -tulnp | grep :{port}", shell=True).decode()
         pid = output.split()[-1].split('/')[0]
@@ -107,12 +101,10 @@ def monitor_forbidden():
                 subprocess.run(["apt-get", "purge", "-y", cmd], check=False)
         time.sleep(10)
 
-# Inicia tarefas em segundo plano
 threading.Thread(target=monitor_hikka, daemon=True).start()
 threading.Thread(target=keep_alive_local, daemon=True).start()
 threading.Thread(target=monitor_forbidden, daemon=True).start()
 
-# Ciclo principal
 start_hikka()
 while True:
     if current_mode == "hikka":
