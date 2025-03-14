@@ -21,14 +21,16 @@ RUN /Hikka/venv/bin/python -m pip install --upgrade pip && \
 # Etapa Final
 FROM python:3.10-slim
 
-# Instala pacotes necessários para execução
+# Instala pacotes necessários para execução e limpa o cache
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl libcairo2 git ffmpeg libmagic1 libavcodec-dev libavutil-dev libavformat-dev \
     libswscale-dev libavdevice-dev neofetch wkhtmltopdf gcc python3-dev net-tools && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* && \
-    update-alternatives --remove-all lzma
+    apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/*
+
+# Remover alternativas de lzma (caso tenha sido instalada por dependências)
+RUN update-alternatives --remove-all lzma || true
 
 # Definição correta de variáveis de ambiente
 ENV DOCKER=true
