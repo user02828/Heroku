@@ -27,7 +27,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libswscale-dev libavdevice-dev neofetch wkhtmltopdf gcc python3-dev net-tools && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/*
+    apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* && \
+    update-alternatives --remove-all lzma
 
 # Definição correta de variáveis de ambiente
 ENV DOCKER=true
