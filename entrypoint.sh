@@ -18,7 +18,11 @@ if [ -z "$RENDER_EXTERNAL_HOSTNAME" ]; then
     fi
 fi
 
-python3 - <<'EOF'
+export PORT
+export HIKKA_RESTART_TIMEOUT
+export FORBIDDEN_UTILS
+
+python3 <<EOF
 from flask import Flask
 import requests
 import subprocess
@@ -29,7 +33,7 @@ import os
 import re
 import logging
 
-# Configuração de log para saída no terminal
+# Configuração de log
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -42,10 +46,13 @@ hikka_process = None
 current_mode = "hikka"
 hikka_last_seen = time.time()
 
+PORT = int(os.environ.get("PORT", 8080))
+HIKKA_RESTART_TIMEOUT = int(os.environ.get("HIKKA_RESTART_TIMEOUT", 60))
+FORBIDDEN_UTILS = os.environ.get("FORBIDDEN_UTILS", "").split()
+
 def free_port(port):
-    """Libera o porto se estiver ocupado"""
+    """Libera a porta se estiver ocupada"""
     try:
-        # Listamos as conexões ativas e procuramos o porto desejado
         output = subprocess.check_output(f"netstat -tulnp | grep :{port}", shell=True, text=True)
         match = re.search(r"(\d+)/", output)
         if match:
@@ -59,9 +66,9 @@ def free_port(port):
 
 def start_hikka():
     global hikka_process, current_mode
-    free_port({{PORT}})
+    free_port(PORT)
     try:
-        hikka_process = subprocess.Popen(["python3", "-m", "hikka", "--port", str({{PORT}})])
+        hikka_process = subprocess.Popen(["python3", "-m", "hikka", "--port", str(PORT)])
         logger.info(f"Hikka iniciada (PID: {hikka_process.pid})")
         current_mode = "hikka"
     except Exception as e:
@@ -83,10 +90,9 @@ def monitor_hikka():
             hikka_last_seen = time.time()
         else:
             logger.warning(f"Processo Hikka morreu (PID: {hikka_process.pid if hikka_process else 'None'})")
-            if time.time() - hikka_last_seen > {{HIKKA_RESTART_TIMEOUT}}:
+            if time.time() - hikka_last_seen > HIKKA_RESTART_TIMEOUT:
                 stop_hikka()
                 start_hikka()
-                # Se estivermos em modo Flask e Hikka voltar, encerramos o Flask
                 if current_mode == "flask" and hikka_process and hikka_process.poll() is None:
                     logger.info("Hikka recuperada; finalizando Flask")
                     os._exit(0)
@@ -100,9 +106,8 @@ def keep_alive_local():
             pass
 
 def monitor_forbidden():
-    forbidden_utils = """{FORBIDDEN_UTILS}""".split()
     while True:
-        for cmd in forbidden_utils:
+        for cmd in FORBIDDEN_UTILS:
             if shutil.which(cmd):
                 subprocess.run(["apt-get", "purge", "-y", cmd], check=False)
                 logger.info(f"Utilitário proibido removido: {cmd}")
@@ -124,12 +129,12 @@ while True:
             logger.info("Mudando para Flask devido à falha do Hikka")
     if current_mode == "flask":
         logger.info("Executando Flask como fallback")
-        app.run(host="127.0.0.1", port={{PORT}})
+        app.run(host="127.0.0.1", port=PORT)
 
 @app.route("/healthz")
 def healthz():
     try:
-        response = requests.get(f"http://localhost:{{PORT}}", timeout=3)
+        response = requests.get(f"http://localhost:{PORT}", timeout=3)
         if response.status_code == 200:
             return "OK", 200
     except requests.exceptions.RequestException:
