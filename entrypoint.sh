@@ -8,8 +8,8 @@ HIKKA_RESTART_TIMEOUT=60
 
 # Устанавливаем зависимости
 apt-get update
-apt-get install -y net-tools  # Устанавливаем netstat
-pip install flask requests
+apt-get install -y net-tools
+pip install --no-cache-dir flask requests
 
 if [ -z "$RENDER_EXTERNAL_HOSTNAME" ]; then
     RENDER_EXTERNAL_HOSTNAME=$(curl -s "http://169.254.169.254/latest/meta-data/public-hostname" || echo "")
@@ -24,12 +24,12 @@ import requests
 import subprocess
 import time
 import threading
-import logging
-import sys
 import shutil
 import os
+import re
+import logging
 
-# Настройка логирования
+# Настройка логирования в терминал
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -46,22 +46,22 @@ def free_port(port):
     """Освобождаем порт, если он занят"""
     try:
         output = subprocess.check_output(f"netstat -tulnp | grep :{port}", shell=True).decode()
-        pid = output.split()[-1].split('/')[0]
-        if pid:
-            subprocess.run(f"kill -9 {pid}", shell=True)
-            logger.info(f"Убит процесс (PID: {pid}), занимавший порт {port}")
-            time.sleep(1)  # Даём время на освобождение
+        match = re.search(r"\d+/[^ ]+", output)
+        if match:
+            pid = match.group().split('/')[0]
+            if pid.isdigit():
+                subprocess.run(f"kill -9 {pid}", shell=True)
+                logger.info(f"Процесс (PID: {pid}), занимавший порт {port}, убит")
+                time.sleep(1)
     except subprocess.CalledProcessError:
-        logger.info(f"Порт {port} уже свободен или процесс не найден")
-    except Exception as e:
-        logger.error(f"Ошибка при освобождении порта: {e}")
+        logger.info(f"Порт {port} свободен")
 
 def start_hikka():
     global hikka_process, current_mode
-    free_port($PORT)  # Освобождаем порт перед запуском
+    free_port($PORT)
     try:
-        hikka_process = subprocess.Popen(["python", "-m", "hikka", "--port", str($PORT)])
-        logger.info(f"Хикка запущена с PID: {hikka_process.pid}")
+        hikka_process = subprocess.Popen(["python3", "-m", "hikka", "--port", str($PORT)])
+        logger.info(f"Хикка запущена (PID: {hikka_process.pid})")
         current_mode = "hikka"
     except Exception as e:
         logger.error(f"Ошибка при запуске Хикки: {e}")
@@ -86,7 +86,7 @@ def monitor_hikka():
                 stop_hikka()
                 start_hikka()
                 if current_mode == "flask" and hikka_process and hikka_process.poll() is None:
-                    logger.info("Хикка вернулась, завершаем Flask")
+                    logger.info("Хикка восстановлена, завершение Flask")
                     os._exit(0)
 
 def keep_alive_local():
@@ -103,6 +103,7 @@ def monitor_forbidden():
         for cmd in forbidden_utils:
             if shutil.which(cmd):
                 subprocess.run(["apt-get", "purge", "-y", cmd], check=False)
+                logger.info(f"Удалена запрещенная утилита: {cmd}")
         time.sleep(10)
 
 # Запуск фоновых задач
@@ -118,10 +119,10 @@ while True:
             time.sleep(10)
         else:
             current_mode = "flask"
-            logger.info("Переключение на Flask из-за смерти Хикки")
+            logger.info("Переключение на Flask из-за сбоя Хикки")
     if current_mode == "flask":
-        logger.info("Запуск Flask в качестве заглушки")
-        app.run(host="127.0.0.1", port=$PORT)
+        logger.info("Запуск Flask как заглушки")
+        app.run(host="0.0.0.0", port=$PORT)
 
 @app.route("/healthz")
 def healthz():
