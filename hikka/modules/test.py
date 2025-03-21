@@ -12,6 +12,8 @@ import subprocess
 import time
 import typing
 from io import BytesIO
+import platform as lib_platform
+import getpass
 
 from hikkatl.tl.types import Message
 
@@ -370,8 +372,8 @@ class TestMod(loader.Module):
                 ping_hint=(
                     (self.config["hint"]) if random.choice([0, 0, 1]) == 1 else ""
                 ),
-                hostname=subprocess.run(['hostname'], stdout=subprocess.PIPE).stdout.decode().strip(),
-                user=subprocess.run(['whoami'], stdout=subprocess.PIPE).stdout.decode().strip(),
+                hostname=lib_platform.node(),
+                user=getpass.getuser(),
     ),
         )
 
