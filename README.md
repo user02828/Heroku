@@ -1,5 +1,3 @@
-<a href="https://deepsource.io/gh/coddrago/Heroku/?ref=repository-badge"><img src="https://deepsource.io/gh/hikariatama/Hikka.svg/?label=active+issues&show_trend=true&token=IPVI_QX-cSuQSVeVl8cb5PLt" alt="DeepSource"></a>
-<a href="https://deepsource.io/gh/coddrago/Heroku/?ref=repository-badge"><img src="https://deepsource.io/gh/hikariatama/Hikka.svg/?label=resolved+issues&show_trend=true&token=IPVI_QX-cSuQSVeVl8cb5PLt" alt="DeepSource"></a><br>
 <a href="https://www.codacy.com/gh/coddrago/Heroku/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=coddrago/Heroku&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/97e3ea868f9344a5aa6e4d874f83db14"/></a>
 <a href="#"><img src="https://img.shields.io/github/languages/code-size/coddrago/Heroku"/></a>
 <a href="#"><img src="https://img.shields.io/github/issues-raw/coddrago/Heroku"/></a>
@@ -46,12 +44,12 @@
  <li>📼 Improved and new <b>core modules</b></li>
  <li>⏱ Quick <b>bug fixes</b> (compared to official FTG and GeekTG)</li>
  <li>▶️ <b>Inline forms, galleries and lists</b></li>
- <li>🔁 Full <b>backward compatibility</b> with FTG and GeekTG modules</li>
+ <li>🔁 Full <b>backward compatibility</b> with FTG, Hikka and GeekTG modules</li>
 </ul>
 <hr>
 <h2 border="none"><img src="https://github.com/hikariatama/assets/raw/master/1312-micro-sd-card-flat.webp" height="54" align="middle"> Requirements</h2>
 <ul>
- <li>Python 3.8-3.11</li>
+ <li>Python 3.9-3.12</li>
  <li>API_ID and HASH from <a href="https://my.telegram.org/apps" color="#2594cb">Telegram</a></li>
 </ul>
 <hr>
@@ -128,9 +126,14 @@ Check out <a href="https://web.archive.org/dev.hikka.pw">dev.hikka.pw</a> for de
 
 <ul>
     <li><a href="https://gitlab.com/hackintosh5">Hackintosh5</a> for FTG, which is the base of project</li>
-    <li><a href="https://t.me/kazunimo">Kazunimo</a> for Turkish translation pack</li>
-    <li><a href="https://t.me/hegaNET">Hegakura</a> for Tatar translation pack</li>
-    <li><a href="https://t.me/tiefeschwarz">Aldehydesäure</a> for German translation pack</li>
-    <li><a href="https://t.me/amorescam">Amore</a> for Uzbek translation pack</li>
-    <li><a href="https://t.me/lonami">Lonami</a> for Telethon, which is the base of Hikka-TL</li>
+    <li><a href="https://t.me/GunyaKshin">Codwiz</a> for Ukrainian translation pack</li>
+    <li><a href="https://t.me/thisLyomi">Lyomi</a> for German translation pack</li>
+    <li><a href="https://t.me/lonami">Lonami</a> for Telethon, which is the base of Heroku-TL</li>
 </ul>
+
+<hr>
+<h2>Sponsors: </h2>
+<p align="center">
+    <img src="assets/aeza.svg" width="300" height="60">
+</p>
+<p align="center">Developed with support of <a href="https://aeza.net/?ref=herokugh">aeza.net</a></p>
