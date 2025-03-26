@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
---- Configuração do ambiente (Shell) ---
+# --- Configuração do ambiente (Shell) ---
 
 Força a porta para 8080 (o Render exige a variável PORT; forçar 8080 pode causar problemas de roteamento)
 
@@ -25,7 +25,7 @@ pip install --no-cache-dir flask requests
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') [WARNING] --- FORCING PORT TO ${PORT} --- Ignoring PORT environment variable! This will likely fail on Render."
 
---- Bloco Python ---
+# --- Bloco Python ---
 
 python3 - <<'EOF'
 import subprocess
@@ -40,7 +40,7 @@ import threading
 import shutil  # Para shutil.which
 import socket  # Para verificação de porta
 
---- Configuração ---
+# --- Configuração ---
 
 PORT = 8080  # Forçando porta 8080 (ignora o ambiente)
 logging.warning(f"--- FORCING PORT TO {PORT} --- Ignoring PORT environment variable! This will likely fail on Render.")
@@ -59,7 +59,7 @@ RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "")
 FORBIDDEN_UTILS = os.environ.get("FORBIDDEN_UTILS", "").strip()
 PASS_ROOT_ARG = os.environ.get("PASS_ROOT_ARG", "true").lower() == "true"
 
---- Configuração do Logging ---
+# --- Configuração do Logging ---
 
 log_level_str = os.environ.get("LOG_LEVEL", "INFO").upper()
 log_level = getattr(logging, log_level_str, logging.INFO)
@@ -79,12 +79,12 @@ logging.info(f"Porta alvo FORÇADA para Hikka: {PORT}")
 logging.info(f"URL de verificação de saúde interna: {HEALTH_CHECK_URL}")
 logging.info(f"Comando para iniciar Hikka: {' '.join(PYTHON_CMD)}")
 
---- Estado Global ---
+# --- Estado Global ---
 
 hikka_process_obj: psutil.Process | None = None
 monitor_stop_event = threading.Event()
 
---- Funções Auxiliares ---
+# --- Funções Auxiliares ---
 
 def find_process_by_cmd(cmd):
 """Encontra o processo Hikka usando psutil, excluindo este script."""
