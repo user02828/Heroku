@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git python3-dev gcc build-essential && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/*
 
-RUN git clone https://github.com/coddrago/Heroku /Hikka
+RUN git clone https://github.com/user02828/Heroku /Hikka
 
 RUN python -m venv /Hikka/venv
 
