@@ -1,9 +1,7 @@
 #!/bin/bash
 set -e
 
-# --- Configuração do ambiente (Shell) ---
-
-Força a porta para 8080 (o Render exige a variável PORT; forçar 8080 pode causar problemas de roteamento)
+# --- Configuração do ambiente (Shell) --- Força a porta para 8080 (o Render exige a variável PORT; forçar 8080 pode causar problemas de roteamento)
 
 export PORT=8080
 export PYTHON_CMD="python3 -m hikka"
