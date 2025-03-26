@@ -18,7 +18,7 @@ export PASS_ROOT_ARG="true"
 # Atualiza e instala dependências necessárias (ajuste conforme seu sistema)  
 apt-get update  
 apt-get install -y net-tools  
-pip install --no-cache-dir flask requests  
+pip install --no-cache-dir flask requests psutil
   
 echo "$(date '+%Y-%m-%d %H:%M:%S') [WARNING] --- FORCING PORT TO ${PORT} --- Ignoring PORT environment variable! This will likely fail on Render."  
   
