@@ -1,22 +1,18 @@
 #!/bin/bash
 set -e
 
-# --- Configuração ---
-FORBIDDEN_UTILS="socat nc netcat php lua telnet ncat cryptcat rlwrap msfconsole hydra medea john hashcat sqlmap metasploit empire cobaltstrike ettercap bettercap responder mitmproxy evil-winrm chisel ligolo revshells powershell certutil bitsadmin smbclient impacket-scripts smbmap crackmapexec enum4linux ldapsearch onesixtyone snmpwalk zphisher socialfish blackeye weeman aircrack-ng reaver pixiewps wifite kismet horst wash bully wpscan commix xerosploit slowloris hping iodine iodine-client iodine-server"
+FORBIDDEN_UTILS="socat nc netcat php lua telnet ncat cryptcat rlwrap msfconsole hydra medusa john hashcat sqlmap metasploit empire cobaltstrike ettercap bettercap responder mitmproxy evil-winrm chisel ligolo revshells powershell certutil bitsadmin smbclient impacket-scripts smbmap crackmapexec enum4linux ldapsearch onesixtyone snmpwalk zphisher socialfish blackeye weeman aircrack-ng reaver pixiewps wifite kismet horst wash bully wpscan commix xerosploit slowloris hping iodine iodine-client iodine-server"
 
 PORT=${PORT:-8080}
-HIKKA_RESTART_TIMEOUT=60
+HIKKA_RESTART_TIMEOUT=1
 
-# Atualiza e instala dependências necessárias
 apt-get update
 apt-get install -y net-tools
-pip install flask requests
+pip install --no-cache-dir flask requests
 
-# Obtém RENDER_EXTERNAL_HOSTNAME, se não estiver definido
 if [ -z "$RENDER_EXTERNAL_HOSTNAME" ]; then
     RENDER_EXTERNAL_HOSTNAME=$(curl -s "http://169.254.169.254/latest/meta-data/public-hostname" || echo "")
     if [ -z "$RENDER_EXTERNAL_HOSTNAME" ]; then
-        echo "RENDER_EXTERNAL_HOSTNAME não definido e não foi possível obtê-lo."
         exit 1
     fi
 fi
@@ -27,12 +23,12 @@ import requests
 import subprocess
 import time
 import threading
-import logging
-import sys
 import shutil
 import os
+import re
+import logging
 
-# Configuração de logging
+# Настройка логирования в терминал
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -46,35 +42,35 @@ current_mode = "hikka"
 hikka_last_seen = time.time()
 
 def free_port(port):
-    """Libera a porta, se estiver ocupada."""
+    """Освобождаем порт, если он занят"""
     try:
         output = subprocess.check_output(f"netstat -tulnp | grep :{port}", shell=True).decode()
-        pid = output.split()[-1].split('/')[0]
-        if pid:
-            subprocess.run(f"kill -9 {pid}", shell=True)
-            logger.info(f"Processo (PID: {pid}) que usava a porta {port} foi morto")
-            time.sleep(1)
+        match = re.search(r"\d+/[^ ]+", output)
+        if match:
+            pid = match.group().split('/')[0]
+            if pid.isdigit():
+                subprocess.run(f"kill -9 {pid}", shell=True)
+                logger.info(f"Процесс (PID: {pid}), занимавший порт {port}, убит")
+                time.sleep(1)
     except subprocess.CalledProcessError:
-        logger.info(f"Porta {port} livre ou processo não encontrado.")
-    except Exception as e:
-        logger.error(f"Erro ao liberar porta: {e}")
+        logger.info(f"Порт {port} свободен")
 
 def start_hikka():
     global hikka_process, current_mode
-    free_port(${PORT})
+    free_port($PORT)
     try:
-        hikka_process = subprocess.Popen(["python", "-m", "hikka", "--port", str(${PORT})])
-        logger.info(f"Hikka iniciado com PID: {hikka_process.pid}")
+        hikka_process = subprocess.Popen(["python3", "-m", "hikka", "--port", str($PORT)])
+        logger.info(f"Хикка запущена (PID: {hikka_process.pid})")
         current_mode = "hikka"
     except Exception as e:
-        logger.error(f"Erro ao iniciar Hikka: {e}")
+        logger.error(f"Ошибка при запуске Хикки: {e}")
         hikka_process = None
 
 def stop_hikka():
     global hikka_process
     if hikka_process and hikka_process.poll() is None:
         hikka_process.kill()
-        logger.info(f"Hikka (PID: {hikka_process.pid}) foi parado")
+        logger.info(f"Хикка (PID: {hikka_process.pid}) остановлена")
     hikka_process = None
 
 def monitor_hikka():
@@ -84,37 +80,37 @@ def monitor_hikka():
         if hikka_process and hikka_process.poll() is None:
             hikka_last_seen = time.time()
         else:
-            logger.warning(f"Hikka morreu (PID: {hikka_process.pid if hikka_process else 'None'})")
-            if time.time() - hikka_last_seen > ${HIKKA_RESTART_TIMEOUT}:
+            logger.warning(f"Процесс Хикки умер (PID: {hikka_process.pid if hikka_process else 'None'})")
+            if time.time() - hikka_last_seen > $HIKKA_RESTART_TIMEOUT:
                 stop_hikka()
                 start_hikka()
-                # Se estiver no modo Flask e Hikka voltar, encerra o Flask
                 if current_mode == "flask" and hikka_process and hikka_process.poll() is None:
-                    logger.info("Hikka voltou, finalizando Flask")
+                    logger.info("Хикка восстановлена, завершение Flask")
                     os._exit(0)
 
 def keep_alive_local():
     while True:
         time.sleep(30)
         try:
-            requests.get(f"https://${RENDER_EXTERNAL_HOSTNAME}", timeout=5)
+            requests.get(f"https://$RENDER_EXTERNAL_HOSTNAME", timeout=5)
         except requests.exceptions.RequestException:
             pass
 
 def monitor_forbidden():
-    forbidden_utils = "${FORBIDDEN_UTILS}".split()
+    forbidden_utils = "$FORBIDDEN_UTILS".split()
     while True:
         for cmd in forbidden_utils:
             if shutil.which(cmd):
                 subprocess.run(["apt-get", "purge", "-y", cmd], check=False)
+                logger.info(f"Удалена запрещенная утилита: {cmd}")
         time.sleep(10)
 
-# Inicia threads de monitoramento
+# Запуск фоновых задач
 threading.Thread(target=monitor_hikka, daemon=True).start()
 threading.Thread(target=keep_alive_local, daemon=True).start()
 threading.Thread(target=monitor_forbidden, daemon=True).start()
 
-# Loop principal: inicia o Hikka e alterna para Flask se necessário
+# Основной цикл
 start_hikka()
 while True:
     if current_mode == "hikka":
@@ -122,15 +118,15 @@ while True:
             time.sleep(10)
         else:
             current_mode = "flask"
-            logger.info("Alternando para modo Flask, pois Hikka morreu")
+            logger.info("Переключение на Flask из-за сбоя Хикки")
     if current_mode == "flask":
-        logger.info("Iniciando Flask como fallback")
-        app.run(host="127.0.0.1", port=${PORT})
+        logger.info("Запуск Flask как заглушки")
+        app.run(host="0.0.0.0", port=$PORT)
 
 @app.route("/healthz")
 def healthz():
     try:
-        response = requests.get(f"http://localhost:${PORT}", timeout=3)
+        response = requests.get(f"http://localhost:$PORT", timeout=3)
         if response.status_code == 200:
             return "OK", 200
     except requests.exceptions.RequestException:
