@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git python3-dev gcc build-essential && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/*
 
-RUN git clone https://github.com/user02828/Heroku /Hikka
+RUN git clone https://github.com/ayumii3/Heroku /Hikka
 
 RUN python -m venv /Hikka/venv
 
@@ -29,11 +29,11 @@ ENV DOCKER=true \
 
 COPY --from=builder /Hikka /Hikka
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY keep_alive.sh /keep_alive.sh
+RUN chmod +x /keep_alive.sh
 
 WORKDIR /Hikka
 
 EXPOSE 8080
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/keep_alive.sh"]
